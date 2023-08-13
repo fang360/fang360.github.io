@@ -29,11 +29,11 @@
         position: absolute;
         bottom: 0;
         right: 0;
-        background: #81b29a;
+        color:#F4F1DE,
+        background: #9CA6A1;
         margin-right: 20px;
         font-family: Arial, sans-serif;
         overflow: auto;
-        border-radius: 3px;
       }
       #map {
         position: absolute;
@@ -43,7 +43,7 @@
       }
       #features {
         top: 0;
-        height: 400px;
+        height: 300px;
         margin-top: 20px;
         width: 300px;
       }
@@ -51,9 +51,9 @@
         padding: 10px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         line-height: 18px;
-        height: 200px;
+        height: 250px;
         margin-bottom: 40px;
-        width: 150px;
+        width: 100px;
       }
       .legend-key {
         display: inline-block;
@@ -67,8 +67,22 @@
   <body>
     <div id="map"></div>
     <div class="map-overlay" id="features">
-      <h2>US population density</h2>
-      <div id="pd"><p>Hover over a state!</p></div>
+      <h2>Taipei Quality of Life</h2>
+      <div class='session'>
+          <h3>Year</h3>
+          <div class='row' id='filters'>
+            <input id='105' name='toggle' value='2016' checked='checked'>
+            <label for='105'>2016</label>
+            <input id='106' type='radio' name='toggle' value='2017'>
+            <label for='106'>2017</label>
+            <input id='107' type='radio' name='toggle' value='2018'>
+            <label for='107'>2018</label>
+            <input id='108' type='radio' name='toggle' value='2019'>
+            <label for='108'>2019</label>
+            <input id='109' type='radio' name='toggle' value='2020'>
+            <label for='109'>2020</label>
+          </div>
+        </div>
     </div>
     <div class="map-overlay" id="legend"></div>
 
@@ -142,16 +156,7 @@
           legend.appendChild(item);
         });
 
-        // change info window on hover
-        map.on('mousemove', (event) => {
-          const states = map.queryRenderedFeatures(event.point, {
-            layers: ['statedata']
-          });
-          document.getElementById('pd').innerHTML = states.length
-            ? `<h3>${states[0].properties.name}</h3><p><strong><em>${states[0].properties.density}</strong> people per square mile</em></p>`
-            : `<p>Hover over a state!</p>`;
-        });
-      });
+        
     </script>
   </body>
 </html>
