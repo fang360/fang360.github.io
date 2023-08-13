@@ -71,7 +71,7 @@
       <div class='session'>
           <h3>Year</h3>
           <div class='row' id='filters'>
-            <input id='105' name='toggle' value='2016' checked='checked'>
+            <input id='105' type='radio' name='toggle' value='2016' checked='checked'>
             <label for='105'>2016</label>
             <input id='106' type='radio' name='toggle' value='2017'>
             <label for='106'>2017</label>
@@ -106,7 +106,27 @@
           [122.18851892309593, 25.312616275685993],
           [120.81615911982234, 24.66447557201256]
         ]);
-
+        map.addSource('contours', {
+          type: 'vector',
+          url: 'mapbox://mapbox.mapbox-terrain-v2'
+          });
+          map.addLayer({
+          'id': 'contours',
+          'type': 'line',
+          'source': 'contours',
+          'source-layer': 'contour',
+          'layout': {
+          // Make the layer visible by default.
+          'visibility': 'visible',
+          'line-join': 'round',
+          'line-cap': 'round'
+          },
+          'paint': {
+          'line-color': '#877b59',
+          'line-width': 1
+          }
+          });
+        
         // define layer names
         const layers = [
           '0',
