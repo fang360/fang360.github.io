@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Quality of Life</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
+    <link
+    rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css"
+    type="text/css"
+    />
+    <link
+    href="https://api.mapbox.com/mapbox-assembly/v1.3.0/assembly.min.css"
+    rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-assembly/v1.3.0/assembly.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+      .map-overlay {
+            position: absolute;
+            overflow: auto;
+            color:white
+        }
+        @media (max-width: 768px) {
+            #nav-overlay {
+                /* width: 98%; */
+                right: 0;
+                display: flex;
+                padding-left: 1vw;
+                justify-content: space-between;
+                align-items: center;
+                top: 1px;
+                left: auto;
+            }
+            #features {
+                top: unset;
+                margin-top: 8vh;
+                height: 40vh;
+                bottom: 0;
+                left: 0;
+                margin: unset;
+            }
+            .mapboxgl-ctrl-geocoder  {
+                font-size: 18px;
+                /* line-height: 24px; */
+                font-family: "Open Sans", "Helvetica Neue", Arial, Helvetica, sans-serif;
+                position: relative;
+                background-color: #fff;
+                min-width: unset;
+                z-index: 1;
+                border-radius: 4px;
+                transition: width .25s, min-width .25s;
+            }
+
+
+            #logo a {
+                position: relative;
+                text-decoration: none;
+                color: #ffffff;
+                font-weight: 900;
+                font-size: 2vh;
+                padding: 1vh 2vh;
+                background-color: #a6d3a0;
+                border-radius: 3vh;
+                transition: background-color 0.3s ease;
+                border: 1px solid;
+                margin: 0.3em;
+            }
+        }
+        h2 {
+            font-size: x-large;
+            margin: 10xp 0px;
+        }
+        #features {
+            top: 0;
+            bottom: 0;
+            padding-bottom: 20px;
+            right:0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; 
+            font-family:monospace;
+            background-color: #92ADD8;
+            padding: 2em;
+            max-width: 25vw;
+        }
+        #nav-overlay {
+            height: 8vh;
+            display: flex;
+            padding-left: 1vw;
+            justify-content: space-between;
+            align-items: center;
+        
+        }
+        #logo {
+            display: flex;
+            align-items: flex-start;
+        }
+        #logo a {
+            position: relative;
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 2vh;
+            padding: 1vh 2vh;
+            background-color: #a6d3a0;
+            border-radius: 3vh;
+            transition: background-color 0.3s ease;
+        }
+        #logo a:hover {
+            background-color: #99ddff;
+        }
+        #legend {
+            line-height: 18px;
+            font-family:monospace;
+            display: contents;
+        }
+        .legend-key {
+            display: inline-block;
+            border-radius: 20%;
+            width: 10px;
+            height: 10px;
+            margin-right: 5px;
+        }
+        /*ref http://monahousehold.blogspot.com/2017/05/hr.html*/
+        hr {
+            border: 0;
+            height: 1px;
+            background-image: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
+        }
+        button {
+            position: relative;
+            color: #C1DDE6;
+            padding: 1vh 2vh;
+            background-color: #92ADD8;
+            border-radius: 3vh;
+            font-family:monospace;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            color: #E8C389;
+            background-color: #9E597D;
+        }
+
+        button.active {
+            position: relative;
+            color: #E8C389;
+            padding: 1vh 2vh;
+            background-color: #9E597D;
+            border-radius: 3vh;
+            font-family:monospace;
+            transition: background-color 0.3s ease;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            }
+
+        .modal img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+            }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 30px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            }
+
+        .close:hover,
+        .close:focus {
+            color: #999;
+            text-decoration: none;
+            cursor: pointer;
+            }
+        #desire {
+            font-size: initial;
+        }
+    </style>
+    <script>
+        // Layer control
+        function closeLayer(clickedLayer, event) {
+          var words = document.getElementById("button-text");
+          var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+          var button = event.target;
+          console.log(clickedLayer,visibility)
+          if (visibility === 'visible') {
+            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+            button.className = 'active';
+            if (clickedLayer === 'clusters') {
+                words.innerHTML = "Open";
+            }
+          } else {
+            button.className = '';
+            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+            if (clickedLayer === 'clusters') {
+                words.innerHTML = "Close";
+            }
+          }
+        }
+        
+        
+        </script>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div class="map-overlay" id="features">
+        <div id="search-container" class='mb24'>
+            <h3 class="txt-l txt-bold mb6">Choose a Place</h3>
+        </div>
+        
+        <div id="legend">
+            <h3 class="txt-l txt-bold">Clusters Legend</h3>
+            <p class="txt-s mb6 color-gray-lighter">Click legend to see cluster meanings</p>
+            <div id="imgs" class="modal">
+                <span class="close">&times;</span>
+                <img src="" alt="Image", id="modalImg">
+            </div>
+        </div>
+        <div class="mt6" style="width: 100%;">
+            <button onclick="closeLayer('clusters', event)" class='' style="width: 100%; text-align: center;">
+                <span id="button-text">Close</span> Clustering layer
+            </button>
+        </div>
+
+                <h3 class="txt-l txt-bold mt24 mb6 flex flex--row">communicate time</h3>
+            <div  class="flex flex--row-reverse mt6" style="width: 100%;">
+                <button onclick="closeLayer('travel', event)" class="" id="travel">Close zone</button>
+            </div>
+        <div id="communicate time" class="">
+            <form id="params">
+                <h4 class="txt-m txt-bold mb6">Choose a travel mode:</h4>
+                <div class="mb12 mr12 toggle-group align-center">
+                <label class="toggle-container">
+                <input name="profile" type="radio" value="walking" checked />
+                <div class="toggle toggle--active-null toggle--null">Walking</div>
+                </label>
+                <label class="toggle-container">
+                <input name="profile" type="radio" value="cycling"  />
+                <div class="toggle toggle--active-null toggle--null">Cycling</div>
+                </label>
+                <label class="toggle-container">
+                <input name="profile" type="radio" value="driving" />
+                <div class="toggle toggle--active-null toggle--null">Driving</div>
+                </label>
+                </div>
+                <h4 class="txt-m txt-bold mb6">Choose a maximum duration:</h4>
+                <div class="mb12 mr12 toggle-group align-center">
+                <label class="toggle-container">
+                <input name="duration" type="radio" value="10" checked />
+                <div class="toggle toggle--active-null toggle--null">10 min</div>
+                </label>
+                <label class="toggle-container">
+                <input name="duration" type="radio" value="20" />
+                <div class="toggle toggle--active-null toggle--null">20 min</div>
+                </label>
+                <label class="toggle-container">
+                <input name="duration" type="radio" value="30" />
+                <div class="toggle toggle--active-null toggle--null">30 min</div>
+                </label>
+                </div>
+            </form>
+        </div>
+        <div>
+            <h3 class="txt-l txt-bold mt24">Select Desire Feautres</h3>
+            <div id="desire"></div>
+            <hr class="mt12">
+            <h3 class="txt-l txt-bold mt12">District Details</h3>
+            <div id="pd">
+                <h2><p>Hover over a district!</p></h2>
+            </div>
+        </div>
+    </div>
+        <div class="map-overlay" id="nav-overlay">
+            <div id="logo">
+                <a href="./history.html">Observing the Trend</a>
+            </div>
+        </div>
+
+      
+    
+
+    <script>
+      var weight = [0,0,0,0,0,0]
+      
+      // define access token
+      mapboxgl.accessToken = 'pk.eyJ1IjoidHMyM21lZyIsImEiOiJjbGpsbXd3MXgwdnphM2VrMjI4OWUzN2h4In0.C14aWUGcGvOoJEs-IqQ_nw';
+
+      // create map
+      const map = new mapboxgl.Map({
+        container: 'map', // container id
+        style: 'mapbox://styles/ts23meg/cllciv85h00v701pb8eecatsw', // map style URL from Mapbox Studio
+        zoom: 9,
+        center: [121.61584748102158, 25.029704391775606]
+      });
+      
+      const geocoder = new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            marker: false, // Disable default marker
+            mapboxgl: mapboxgl
+        });
+
+    // Target the params form in the HTML
+        const params = document.getElementById('params');
+        
+        // Create variables to use in getIso()
+        const urlBase = 'https://api.mapbox.com/isochrone/v1/mapbox/';
+        let profile = 'walking';
+        let minutes = 10;
+        
+        // Set up a marker that you can use to show the query's coordinates
+        const marker = new mapboxgl.Marker({
+        'color': '#314ccd'
+        });
+        
+
+      document.getElementById('search-container').appendChild(geocoder.onAdd(map));
+      // wait for map to load before adjusting it
+      map.on('load', () => {
+        
+        // cluster result
+        map.addSource('cluster', {
+            type: 'vector',
+            url: 'mapbox://ts23meg.5b7wrqv1'
+        });
+
+        map.addLayer({
+                "id": 'clusters',
+                "type": "fill",
+                "paint": {
+                "fill-color": [
+                    "step",
+                    [
+                    "get",
+                    '109|kmea_1'
+                    ],
+                    "#fd1212",
+                    1,
+                    "#ff8a05",
+                    2,
+                    "#fff71a",
+                    3,
+                    "#0ffa0f",
+                    4,
+                    "#0ad2f5",
+                    5,
+                    "#1229f8",
+                    6,
+                    "#a118f7"
+                ],
+                "fill-opacity": 0.5,
+                "fill-outline-color": "rgba(0, 0, 0, 0.42)"
+                },
+                "layout": {"visibility": 'visible'},
+                "source": "cluster",
+                "source-layer": "clustering-658s44"
+            })
+        // Listen for the `result` event from the Geocoder // `result` event is triggered when a user makes a selection
+        //  Add a marker at the result's coordinates
+        geocoder.on('result', (event) => {
+          let lon = event.result.center[0]
+          let lat = event.result.center[1]
+          
+          // btn travel active
+          var button = document.getElementById('travel');
+          map.setLayoutProperty('travel', 'visibility', 'visible');
+          button.className = 'active';
+          console.log(button.className)
+          
+          const lngLat = {
+            lon: event.result.center[0],
+            lat: event.result.center[1]
+            };
+            // Initialize the marker at the query coordinates
+            marker.setLngLat(lngLat).addTo(map);
+            getIso();
+            // Create a function that sets up the Isochrone API query then makes a fetch call
+            async function getIso() {
+            const query = await fetch(
+            `${urlBase}${profile}/${lon},${lat}?contours_minutes=${minutes}&polygons=true&access_token=${mapboxgl.accessToken}`,
+            { method: 'GET' }
+            );
+            const data = await query.json();
+            // Set the 'iso' source's data to what's returned by the API query
+            map.getSource('iso').setData(data);
+            }
+            
+            // When a user changes the value of profile or duration by clicking a button, change the parameter's value and make the API query again
+            params.addEventListener('change', (event) => {
+            if (event.target.name === 'profile') {
+            profile = event.target.value;
+            } else if (event.target.name === 'duration') {
+            minutes = event.target.value;
+            }
+            getIso();
+            });
+            
+        });
+        
+        // buffer
+        map.addSource('iso', {
+            type: 'geojson',
+            data: {
+            'type': 'FeatureCollection',
+            'features': []
+            }
+        });
+        
+        map.addLayer(
+            {
+            'id': 'travel',
+            'type': 'fill',
+            'source': 'iso',
+            'layout': {"visibility": 'visible'},
+            'paint': {
+            'fill-color': '#5a3fc0',
+            'fill-opacity': 0.3
+            }
+            },
+            'poi-label'
+        );
+        
+
+        // create legend
+        const modal = document.getElementById("imgs");
+        const span = document.querySelector(".close");
+
+        span.onclick = () => {
+        modal.style.display = "none";
+        };
+
+        window.onclick = (event) => {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+        };
+
+        const clusters = [
+        "Suburb: Remote and Desolate",
+        "Suburb: Small Town Settlement",
+        "Outskirt: Influx of New Residents",
+        "City Center",
+        "Close to Downtown: Convenient Transportation",
+        "Outskirt: High Population Density, Old Town",
+        "Downtown: New Taipei City"
+
+        ];
+        const colors = [
+        "#fd1212",
+        "#ff8a05",
+        "#fff71a",
+        "#0ffa0f",
+        "#0ad2f5",
+        "#1229f8",
+        "#a118f7"
+        ];
+
+        const legend = document.getElementById('legend');
+
+        clusters.forEach((layeri, i) => {
+          const color = colors[i];
+          const item = document.createElement('div');
+          item.style.cursor= 'pointer';
+          const key = document.createElement('span');
+          key.className = 'legend-key';
+          key.style.backgroundColor = color;
+
+          const value = document.createElement('span');
+          value.innerHTML = `${layeri}`;       
+          value.style.color = '#ffffff'  
+          item.onclick = () => {
+            modal.style.display = "block";
+            modalImg.src = "./pic/c" + i.toString() + ".png";
+
+          };
+          item.appendChild(key);
+          item.appendChild(value);
+          legend.appendChild(item);
+        });
+
+        // desire btns
+        const desire = document.getElementById('desire');
+
+        groupNames = [ 
+        "High Retirees",
+        "High Child Density",
+        "Influx of Foreign Residents",
+        "High Income Homes",
+        "Many Metro Stations (300m)",
+        "Many Metro Stations (500m)"
+        ]
+
+        groupNames.forEach((group, g) => {
+          const area = document.createElement('button');
+          area.innerHTML = `${group}`;       
+          area.className = ''
+          area.value = 0;
+          area.onclick = () => {
+            let w = 0
+
+            if (area.className === '' && g < 4) {
+                area.className = 'active';
+                w = 1;
+                } else if (area.className === '' && g > 3) {
+                area.className = 'active';
+                w = 0.5;
+                } else {
+                    area.className = '';
+                    w = 0
+                }
+            area.value = w;
+            weight[g] = w
+            console.log(weight)
+            //weight = groupNames.map((_, idx) => document.querySelector(`button[value="${idx}"]`).value);
+          };
+          desire.appendChild(area);
+        })
+
+        map.addSource('score', {
+            type: 'vector',
+            url: 'mapbox://ts23meg.0ay346xh'
+        });
+        
+        
+        map.addLayer(
+            {
+                "id": "detail",
+                "type": "fill",
+                "paint": {
+                "fill-color": "rgba(0, 0, 0, 0)",
+                "fill-outline-color": [
+                    "case",
+                    [
+                    "==",
+                    [
+                        "id"
+                    ],
+                    0
+                    ],
+                    "#000000",
+                    "#000000"
+                ]
+                },
+                "layout": {},
+                "source": "score",
+                "source-layer": "current-ah12gf"
+            }
+
+        );
+      });
+
+
+      // detail 
+      
+    map.on('mousemove', (event) => {
+    const district = map.queryRenderedFeatures(event.point, {
+        layers: ['detail']
+    });
+    let sum
+    
+    if (district.length) {
+        const calculate = [
+        district[0].properties["Elderly De"], 
+        district[0].properties["Child Depe"], 
+        district[0].properties["Social Inc"], 
+        district[0].properties["Average In"], 
+        district[0].properties["Metro 300"], 
+        district[0].properties["Metro 500"]
+        ]
+        sum = parseInt(district[0].properties.QoL_PR)
+        
+        calculate.forEach((prop, i) => {
+
+            sum = parseFloat(prop)*weight[i]+sum
+            
+            });  
+        
+        console.log(sum)
+        document.getElementById('pd').innerHTML = `
+            <h3 class='txt-h3'>QoL Score: ${sum.toFixed(2)}</h3>
+            <div>
+                <p class='txt-5'>City: ${district[0].properties["County Nam"]}</p>
+                <p class='txt-5'>Town: ${district[0].properties.TOWENG}</p>
+                <p class='txt-5'>Village: ${district[0].properties.VILENG}</p>
+            </div>`;
+    } else {
+        document.getElementById('pd').innerHTML = `<p>Hover over a district!</p>`;
+    }
+    })
+
+
+    
+    </script>
+  </body>
+</html>
