@@ -20,6 +20,8 @@
     rel="stylesheet"
     />
     <script src="https://api.mapbox.com/mapbox-assembly/v1.3.0/assembly.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fira+Sans:wght@300&family=Passion+One:wght@900&display=swap" rel="stylesheet">
+
     <style>
       body {
         margin: 0;
@@ -136,27 +138,28 @@
         hr {
             border: 0;
             height: 1px;
-            background-image: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
+            background-image: linear-gradient(to right, rgba(3, 63, 99,0), rgba(3, 63, 99,0.75), rgba(3, 63, 99,0));
         }
         button {
             position: relative;
-            color: #C1DDE6;
+            color: #ffffff;
             padding: 1vh 2vh;
-            background-color: #92ADD8;
+            background-color: #033F63;
             border-radius: 3vh;
             font-family:monospace;
             transition: background-color 0.3s ease;
+            line-height: 13px;
         }
         button:hover {
-            color: #E8C389;
-            background-color: #9E597D;
+            color: #ffffff;
+            background-color: #E1B7B9;
         }
 
         button.active {
             position: relative;
-            color: #E8C389;
+            color: #fff;
             padding: 1vh 2vh;
-            background-color: #9E597D;
+            background-color: #C1666B;
             border-radius: 3vh;
             font-family:monospace;
             transition: background-color 0.3s ease;
@@ -200,6 +203,53 @@
             }
         #desire {
             font-size: initial;
+            line-height: 5px;
+            display: inline-block;
+        }
+        h1 {
+            font-size: 60px;
+            font-family: 'Caveat', cursive;
+            line-height: 60px;
+            /*margin: 5px;*/
+            text-align:center;
+            color: #F6AF65;
+            text-shadow: 2px 4px #F0F0F0;
+
+        }
+        h3 {
+            color: #C1666B;
+        }
+        h5 {
+            text-align:justify;
+            font-size: xx-small;
+            line-height: 15px;
+            color: #444545;
+
+        }
+        #sub {
+            font-size: large;
+            line-height: 15px;
+            text-align: justify;
+            color: #033F63;
+            font-family: 'Caveat', cursive;
+            margin-top: 20px;
+        }
+        .txt-xl {
+            font-size: 23px;
+        }
+        .ind {
+
+            margin: 5px;
+            /* line-height: 10px; */
+            height: 60px;
+            /* align-content: center; */
+            text-align: center;
+        }
+        .session {
+            width: 100%;
+        }
+        #slider {
+            width: 100%;
         }
     </style>
     <script>
@@ -224,34 +274,56 @@
           }
         }
         
-        
         </script>
   </head>
   <body>
     <div id="map"></div>
 
     <div class="map-overlay" id="features">
+        <div>
+            <h1 class='flex flex--center-main mb6'>Discover Your Ideal Home in Taipei!</h1>
+            <p id="sub">This website is designed to assist you in identifying the most suitable and fitting 
+                residential location for your lifestyle and preferences within the vibrant city of Taipei.
+                <br><br>
+                Now Let's start!</p>
+        </div>
         <div id="search-container" class='mb24'>
-            <h3 class="txt-l txt-bold mb6">Choose a Place</h3>
+            <h3 class="txt-xl txt-bold mt12">Choose a Location</h3>
+            <h5 class="mb6">This location could be your school, your workplace, or any place you frequently need to visit. 
+                Once chosen, this location will serve as the centre for the subsequent exploration.</h5>
         </div>
         
         <div id="legend">
-            <h3 class="txt-l txt-bold">Clusters Legend</h3>
-            <p class="txt-s mb6 color-gray-lighter">Click legend to see cluster meanings</p>
+            <h3 class="txt-xl txt-bold">Clusters Legend</h3>
+            <h5 class="mb6">
+                The seven different colors displayed on the map represent the outcomes of clustering  performed 
+                by the k-means model using the latest available data from 2020. You can click on the legend to 
+                view the characteristics of each cluster, as well as to compare the distinctions and similarities 
+                between clusters and similar clusters, you can also close this layer by clicking the closing button.</h5>
+            
             <div id="imgs" class="modal">
                 <span class="close">&times;</span>
                 <img src="" alt="Image", id="modalImg">
             </div>
-        </div>
-        <div class="mt6" style="width: 100%;">
-            <button onclick="closeLayer('clusters', event)" class='' style="width: 100%; text-align: center;">
-                <span id="button-text">Close</span> Clustering layer
-            </button>
+            <div class='session' id='sliderbar'>
+                <h4>Opacity: <label id='active-opc'>0.5</label></h4>
+                <input id='slider' class='row' type='range' min='0.1' max='1' step='0.05' value='0.5' />
+            </div>
         </div>
 
-                <h3 class="txt-l txt-bold mt24 mb6 flex flex--row">communicate time</h3>
+        <div class="mt6" style="width: 100%;">
+            <button onclick="closeLayer('clusters', event)" class='' style="width: 100%; text-align: center;">
+                <span id="button-text">Close</span> Clustering Layer
+            </button>
+        <div>
+            <h3 class="txt-xl txt-bold mt24 flex flex--row">Commute Time Buffer Map</h3>
+            <h5>
+                In this section, you can select a travel mode and 
+                the maximum commute time you are willing to invest.</h5>
+        </div>
+        </div>
             <div  class="flex flex--row-reverse mt6" style="width: 100%;">
-                <button onclick="closeLayer('travel', event)" class="" id="travel">Close zone</button>
+                <button onclick="closeLayer('travel', event)" class="" id="travel">Close Zone</button>
             </div>
         <div id="communicate time" class="">
             <form id="params">
@@ -288,10 +360,17 @@
             </form>
         </div>
         <div>
-            <h3 class="txt-l txt-bold mt24">Select Desire Feautres</h3>
+            <h3 class="txt-xl txt-bold mt24">Select Desire Feautres</h3>
+            <h5>There are six characteristics of living environments listed below. 
+                You can freely choose ( one/many ) attributes that matter to you, 
+                and these will be reflected in the final quality of life score through a weighted approach.</h5>
             <div id="desire"></div>
             <hr class="mt12">
-            <h3 class="txt-l txt-bold mt12">District Details</h3>
+            <h3 class="txt-xl txt-bold mt12">District Details</h3>
+            <h5>This section shows the information about the selected area and its quality of life score. 
+                You observe that the quality of life score is not necessarily positively correlate with the 
+                clustering results of the model. This is because the quality of life score is calculated based 
+                on certain features from the dataset and ranked in percentile grades.</h5>
             <div id="pd">
                 <h2><p>Hover over a district!</p></h2>
             </div>
@@ -355,23 +434,13 @@
                 "type": "fill",
                 "paint": {
                 "fill-color": [
-                    "step",
-                    [
-                    "get",
-                    '109|kmea_1'
-                    ],
-                    "#fd1212",
-                    1,
-                    "#ff8a05",
-                    2,
-                    "#fff71a",
-                    3,
-                    "#0ffa0f",
-                    4,
-                    "#0ad2f5",
-                    5,
-                    "#1229f8",
-                    6,
+                    "step", ["get", '109|kmea_1'],
+                    "#fd1212", 1,
+                    "#ff8a05", 2,
+                    "#fff71a", 3,
+                    "#0ffa0f", 4,
+                    "#0ad2f5", 5,
+                    "#1229f8", 6,
                     "#a118f7"
                 ],
                 "fill-opacity": 0.5,
@@ -446,8 +515,6 @@
             'poi-label'
         );
         
-
-        // create legend
         const modal = document.getElementById("imgs");
         const span = document.querySelector(".close");
 
@@ -460,6 +527,7 @@
             modal.style.display = "none";
         }
         };
+        // create legend ref
 
         const clusters = [
         "Suburb: Remote and Desolate",
@@ -481,11 +549,27 @@
         "#a118f7"
         ];
 
+        var paint = [
+            "step", ["get", '109|kmea_1'],
+            "#fd1212", 1, 
+            "#ff8a05", 2, 
+            "#fff71a", 3,
+            "#0ffa0f", 4,
+            "#0ad2f5", 5,
+            "#1229f8", 6,
+            "#a118f7"
+        ]
         const legend = document.getElementById('legend');
 
         clusters.forEach((layeri, i) => {
           const color = colors[i];
+          const contain = document.createElement('div');
           const item = document.createElement('div');
+          const control = document.createElement('div');
+          contain.className = 'flex flex--space-between-main';
+          contain.style.width = '100%';
+          contain.style.margin = '1px';
+          control.className = 'flex flex--center-cross'
           item.style.cursor= 'pointer';
           const key = document.createElement('span');
           key.className = 'legend-key';
@@ -494,14 +578,37 @@
           const value = document.createElement('span');
           value.innerHTML = `${layeri}`;       
           value.style.color = '#ffffff'  
+          const check = document.createElement('button');
+          check.innerHTML = 'show';
+          check.className = 'active';
+
           item.onclick = () => {
             modal.style.display = "block";
             modalImg.src = "./pic/c" + i.toString() + ".png";
 
           };
+          check.addEventListener('click', () => {
+            if (check.className === 'active') {
+                check.className = '';
+                paint[i*2+2] =  "rgba(0, 0, 0, 0)"
+                
+            } else {
+                check.className = 'active';
+                paint[i*2+2] =  colors[i]
+            }
+            map.setPaintProperty('clusters', 'fill-color', paint);
+          });
+          document.getElementById('slider').addEventListener('input', (event) => {
+                const opc = event.target.value
+                map.setPaintProperty('clusters', 'fill-opacity', parseFloat(opc));
+            document.getElementById('active-opc').innerText = opc;
+            });
           item.appendChild(key);
           item.appendChild(value);
-          legend.appendChild(item);
+          control.appendChild(check);
+          contain.appendChild(item);
+          contain.appendChild(control);
+          legend.appendChild(contain);
         });
 
         // desire btns
@@ -519,19 +626,19 @@
         groupNames.forEach((group, g) => {
           const area = document.createElement('button');
           area.innerHTML = `${group}`;       
-          area.className = ''
+          area.className = 'ind w120'
           area.value = 0;
           area.onclick = () => {
             let w = 0
 
-            if (area.className === '' && g < 4) {
-                area.className = 'active';
+            if (area.className === 'ind w120' && g < 4) {
+                area.className = 'active ind w120';
                 w = 1;
-                } else if (area.className === '' && g > 3) {
-                area.className = 'active';
+                } else if (area.className === 'ind w120' && g > 3) {
+                area.className = 'active ind w120';
                 w = 0.5;
                 } else {
-                    area.className = '';
+                    area.className = 'ind w120';
                     w = 0
                 }
             area.value = w;
@@ -576,7 +683,7 @@
       });
 
 
-      // detail 
+      // detail  ref
       
     map.on('mousemove', (event) => {
     const district = map.queryRenderedFeatures(event.point, {
@@ -603,11 +710,11 @@
         
         console.log(sum)
         document.getElementById('pd').innerHTML = `
-            <h3 class='txt-h3'>QoL Score: ${sum.toFixed(2)}</h3>
+            <h4 class='txt-h4'>QoL Score: ${sum.toFixed(2)}</h4>
             <div>
-                <p class='txt-5'>City: ${district[0].properties["County Nam"]}</p>
-                <p class='txt-5'>Town: ${district[0].properties.TOWENG}</p>
-                <p class='txt-5'>Village: ${district[0].properties.VILENG}</p>
+                <p class='txt-5'>County: ${district[0].properties["County Nam"]}</p>
+                <p class='txt-5'>City: ${district[0].properties.TOWENG}</p>
+                <p class='txt-5'>District: ${district[0].properties.VILENG}</p>
             </div>`;
     } else {
         document.getElementById('pd').innerHTML = `<p>Hover over a district!</p>`;
